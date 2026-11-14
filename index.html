@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#7c4dff">
+<meta name="description" content="ถ่ายรูปอาหาร ให้ AI ช่วยนับแคลอรี่ แล้วดูสรุปของวันได้ทันที">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="YumLog">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>YumLog - บันทึกแคลอรี่อาหาร</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -34,7 +42,8 @@ body.lock{overflow:hidden}
 }
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 input,select{font:inherit;color:inherit}
-.app{max-width:480px;margin:0 auto;padding:18px 16px calc(150px + env(safe-area-inset-bottom))}
+html{overscroll-behavior-y:none}
+.app{max-width:480px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 16px calc(150px + env(safe-area-inset-bottom))}
 
 /* header */
 .top{display:flex;align-items:center;justify-content:space-between;margin:4px 2px 16px}
@@ -42,6 +51,36 @@ input,select{font:inherit;color:inherit}
   background:var(--grad-btn);-webkit-background-clip:text;background-clip:text;color:transparent}
 .hello{font-size:13px;color:var(--ink-soft);margin:0}
 .date-pill{font-size:13px;font-weight:600;background:#fff;border-radius:999px;padding:7px 14px;box-shadow:var(--shadow)}
+.top-right{display:flex;align-items:center;gap:8px}
+.help-btn{width:34px;height:34px;border-radius:50%;background:#fff;box-shadow:var(--shadow);font-weight:800;font-size:16px;color:var(--purple)}
+.banner{display:flex;align-items:center;gap:12px;background:#fff;border:2px dashed #ffb3cf;border-radius:var(--r-md);padding:10px 12px;margin-bottom:14px;font-size:13px}
+.banner .ic{font-size:24px}
+.banner div{flex:1;min-width:0;line-height:1.35}
+.banner b{display:block}
+.banner small{color:var(--ink-soft)}
+.banner button{flex:none;font-size:12px;font-weight:700;padding:8px 14px;border-radius:99px;background:var(--grad-btn);color:#fff}
+.p-soft{font-size:13px;color:var(--ink-soft);margin:0 0 12px}
+.p-soft b{color:var(--ink)}
+
+/* guide */
+.guide-top{display:flex;justify-content:space-between;align-items:center}
+.guide-skip{font-size:13px;color:var(--ink-soft);font-weight:600;padding:6px 10px;border-radius:99px}
+.guide-count{font-size:12px;color:var(--ink-soft);font-weight:600}
+.slide{text-align:center;animation:slideIn .3s both;min-height:300px}
+@keyframes slideIn{from{opacity:0;transform:translateX(24px)}}
+.slide .art{width:96px;height:96px;margin:4px auto 12px;border-radius:30px;display:grid;place-items:center;font-size:50px;background:var(--g)}
+.slide h2{margin:0 0 6px;font-size:21px}
+.slide > p{margin:0 auto 10px;color:var(--ink-soft);font-size:14px;max-width:340px}
+.steps{list-style:none;padding:0;margin:10px 0 0;text-align:left;display:grid;gap:8px}
+.steps li{display:flex;gap:12px;align-items:flex-start;background:#faf6ff;border-radius:16px;padding:10px 12px;font-size:13.5px;line-height:1.4}
+.steps .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--grad-btn);color:#fff;font-weight:700;font-size:13px;display:grid;place-items:center}
+.tip{margin-top:10px;font-size:12.5px;color:#8a6100;background:#fff7d1;border-radius:14px;padding:8px 12px;text-align:left}
+.slide .btn{margin-top:12px}
+.dots{display:flex;gap:6px;justify-content:center;margin:12px 0 14px}
+.dots i{width:8px;height:8px;border-radius:99px;background:#e2d7ff;transition:all .2s}
+.dots i.on{width:24px;background:var(--grad-btn)}
+.guide-nav{display:flex;gap:10px}
+.guide-nav .btn-primary{flex:1}
 
 /* hero */
 .hero{position:relative;overflow:hidden;color:#fff;background:var(--grad-hero);border-radius:var(--r-lg);
@@ -374,7 +413,9 @@ function renderToday() {
 
   const list = entriesOf(key);
   $('#view-today').innerHTML = `
-    <div class="top"><div><h1 class="brand" style="margin:0">YumLog 🍜</h1><p class="hello">${hello}</p></div><span class="date-pill">${esc(dateStr)}</span></div>
+    <div class="top"><div><h1 class="brand" style="margin:0">YumLog 🍜</h1><p class="hello">${hello}</p></div>
+      <div class="top-right"><span class="date-pill">${esc(dateStr)}</span><button class="help-btn" data-act="guide" aria-label="วิธีใช้งาน">?</button></div></div>
+    ${settings.apiKey ? '' : `<div class="banner"><span class="ic">🔑</span><div><b>ยังไม่ได้ตั้งค่า API key</b><small>ต้องใส่ก่อน AI ถึงจะวิเคราะห์รูปให้ได้</small></div><button data-act="goto-settings">ตั้งค่า</button></div>`}
     <div class="hero ${over ? 'over' : ''}">
       <div class="ring">
         <svg viewBox="0 0 200 200" aria-hidden="true">
@@ -394,7 +435,7 @@ function renderToday() {
       ${macro('ไขมัน', s.fat, fT, '#ff3d81')}
     </div>
     <div class="sec-head"><h2>มื้อของวันนี้</h2><span>${s.count} รายการ</span></div>
-    ${list.length ? list.map(entryCard).join('') : `<div class="empty"><span class="big">🥑</span><b>ยังว่างอยู่เลย</b>กดปุ่ม 📸 มุมขวาล่างเพื่อถ่ายรูปอาหารมื้อแรก</div>`}
+    ${list.length ? list.map(entryCard).join('') : `<div class="empty"><span class="big">🥑</span><b>ยังว่างอยู่เลย</b>กดปุ่ม 📸 มุมขวาล่างเพื่อถ่ายรูปอาหารมื้อแรก<br><small>ไม่แน่ใจว่าเริ่มยังไง? กด ? มุมขวาบน</small></div>`}
   `;
   requestAnimationFrame(() => requestAnimationFrame(() => {
     const p = $('#view-today .prog'); if (p) p.style.strokeDashoffset = p.dataset.offset;
@@ -466,6 +507,11 @@ function renderSettings() {
       </div>
       <button class="btn btn-danger btn-block" data-act="clear-all" type="button">🗑️ ล้างข้อมูลทั้งหมด</button>
     </div>
+    <div class="card" style="padding:18px;margin-top:14px">
+      <h2 style="margin:0 0 10px">📲 ติดตั้งเป็นแอป</h2>
+      ${installBody()}
+    </div>
+    <button class="btn btn-ghost btn-block" style="margin-top:14px" data-act="guide" type="button">📖 ดูวิธีใช้งาน</button>
     <p class="hello" style="text-align:center;margin-top:16px">ค่าแคลอรี่จาก AI เป็นค่าประมาณ แก้ไขได้ก่อนบันทึกเสมอ</p>`;
 }
 
@@ -490,6 +536,7 @@ function closeSheet() {
   $('#overlay').hidden = true;
   document.body.classList.remove('lock');
   draft = null;
+  guideOpen = false;
   if (confirmResolve) { const r = confirmResolve; confirmResolve = null; r(false); }
 }
 function confirmBox({ icon = '🗑️', title, text, ok = 'ลบเลย' }) {
@@ -535,6 +582,81 @@ function openEntry(d) {
   draft = d;
   openSheet(entryFormHTML(d));
 }
+
+/* ---------- install (PWA) ---------- */
+let deferredInstall = null;
+const isStandalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+function installBody() {
+  if (isStandalone()) return `<p class="p-soft" style="margin:0">✅ ตอนนี้คุณกำลังใช้งานแบบแอปอยู่แล้ว</p>`;
+  if (deferredInstall) return `<p class="p-soft">ติดตั้ง YumLog ไว้บนหน้าจอ เปิดได้เต็มจอเหมือนแอปทั่วไป ไม่มีแถบเบราว์เซอร์</p>
+    <button class="btn btn-primary btn-block" data-act="install" type="button">📲 ติดตั้งแอป</button>`;
+  if (location.protocol === 'file:') return `<p class="p-soft" style="margin:0">ต้องเปิดแอปผ่านเว็บ (<b>https://</b>) ก่อนจึงจะติดตั้งได้ — ถ้าเปิดจากไฟล์ในเครื่องจะติดตั้งไม่ได้</p>`;
+  if (isIOS()) return `<p class="p-soft" style="margin:0">บน iPhone/iPad (ใช้ Safari): แตะปุ่ม <b>แชร์</b> ⬆️ แล้วเลือก <b>เพิ่มไปยังหน้าจอโฮม</b></p>`;
+  return `<p class="p-soft" style="margin:0">เปิดเมนูของเบราว์เซอร์ (⋮) แล้วเลือก <b>ติดตั้งแอป</b> หรือ <b>เพิ่มลงในหน้าจอหลัก</b></p>`;
+}
+function refreshInstallUI() {
+  if (guideOpen) renderGuide();
+  else if (view === 'settings' && !(document.activeElement && document.activeElement.matches('input'))) renderSettings();
+}
+window.addEventListener('beforeinstallprompt', ev => { ev.preventDefault(); deferredInstall = ev; refreshInstallUI(); });
+window.addEventListener('appinstalled', () => { deferredInstall = null; toast('ติดตั้งแอปแล้ว 🎉'); refreshInstallUI(); });
+async function doInstall() {
+  if (!deferredInstall) return;
+  const p = deferredInstall; deferredInstall = null;
+  p.prompt();
+  try { await p.userChoice; } catch {}
+  refreshInstallUI();
+}
+
+/* ---------- how-to guide ---------- */
+const KEY_ONBOARDED = 'foodlog.onboarded';
+let guideOpen = false, guideStep = 0, onboardedMem = false;
+const isOnboarded = () => { if (onboardedMem) return true; try { return localStorage.getItem(KEY_ONBOARDED) === '1'; } catch { return false; } };
+const markOnboarded = () => { onboardedMem = true; try { localStorage.setItem(KEY_ONBOARDED, '1'); } catch {} };
+
+const GUIDE = [
+  { icon: '👋', g: '#ffe3ee', title: 'ยินดีต้อนรับสู่ YumLog',
+    text: 'ถ่ายรูปอาหาร ให้ AI ช่วยนับแคลอรี่ แล้วดูสรุปของวันได้ทันที ใช้งานง่ายแค่ 3 ขั้นตอน',
+    steps: ['ใส่ API key ครั้งเดียวที่แท็บ ⚙️ ตั้งค่า', 'กดปุ่ม 📸 แล้วถ่ายหรือเลือกรูปอาหาร', 'ตรวจผลจาก AI แล้วกด 💾 บันทึก'] },
+  { icon: '🔑', g: '#fff3c4', title: 'ตั้งค่าครั้งแรก',
+    text: 'AI ต้องใช้ OpenAI API key ของคุณเอง ทำครั้งเดียวก็ใช้ได้ตลอด',
+    steps: ['สร้าง key ที่ platform.openai.com/api-keys (บัญชี OpenAI ต้องมีเครดิต)', 'เปิดแท็บ ⚙️ ตั้งค่า แล้ววาง key ลงในช่อง API key', 'ตั้งเป้าหมายแคลอรี่ต่อวัน (เริ่มต้น 2,000 kcal)'],
+    tip: '🔒 key ถูกเก็บไว้ในเครื่องของคุณเท่านั้น', button: { act: 'guide-settings', label: '⚙️ ไปหน้าตั้งค่า' } },
+  { icon: '📸', g: '#e3f7ff', title: 'ถ่ายรูป → ตรวจ → บันทึก',
+    text: '',
+    steps: ['กดปุ่ม 📸 มุมขวาล่าง แล้วเลือก ถ่ายรูป หรือ เลือกรูปจากเครื่อง', 'รอสักครู่ AI จะบอกชื่ออาหาร แคลอรี่ โปรตีน คาร์บ ไขมัน', 'แก้ตัวเลขได้ถ้าไม่ตรง แล้วกด 💾 บันทึก'],
+    tip: '💡 ถ่ายให้เห็นทั้งจานและแสงสว่างพอ ผลจะแม่นขึ้น หรือเลือก "กรอกเอง" ถ้าไม่อยากใช้ AI' },
+  { icon: '📊', g: '#e6dcff', title: 'ดูผลและจัดการรายการ',
+    text: '',
+    steps: ['🏠 วันนี้ — วงแหวนบอกว่ากินไปเท่าไหร่เทียบกับเป้า พร้อมโปรตีน/คาร์บ/ไขมัน', '📊 ประวัติ — กราฟ 7 วัน แตะแท่งเพื่อดูรายการของวันนั้น', '✏️ แก้ไข หรือ 🗑️ ลบ ได้ที่การ์ดอาหารแต่ละรายการ'] },
+  { icon: '📲', g: '#c9f7e7', title: 'ติดตั้งเป็นแอป',
+    text: 'วางไว้บนหน้าจอหลัก เปิดเต็มจอเหมือนแอปทั่วไป ไม่มีแถบเบราว์เซอร์', dynamic: true }
+];
+
+function renderGuide() {
+  const s = GUIDE[guideStep], last = guideStep === GUIDE.length - 1;
+  const steps = s.steps ? `<ol class="steps">${s.steps.map((t, i) => `<li><span class="n">${i + 1}</span><span>${esc(t)}</span></li>`).join('')}</ol>` : '';
+  openSheet(`<div class="guide-top"><span class="guide-count">${guideStep + 1} / ${GUIDE.length}</span>
+      ${last ? '<span></span>' : '<button class="guide-skip" data-act="guide-close">ข้าม</button>'}</div>
+    <div class="slide" key="${guideStep}">
+      <div class="art" style="--g:${s.g}">${s.icon}</div>
+      <h2>${esc(s.title)}</h2>
+      ${s.text ? `<p>${esc(s.text)}</p>` : ''}
+      ${steps}
+      ${s.tip ? `<div class="tip">${esc(s.tip)}</div>` : ''}
+      ${s.dynamic ? installBody() : ''}
+      ${s.button ? `<button class="btn btn-ghost btn-block" data-act="${s.button.act}" type="button">${esc(s.button.label)}</button>` : ''}
+    </div>
+    <div class="dots">${GUIDE.map((_, i) => `<i class="${i === guideStep ? 'on' : ''}"></i>`).join('')}</div>
+    <div class="guide-nav">
+      ${guideStep > 0 ? '<button class="btn btn-ghost" data-act="guide-prev">ย้อนกลับ</button>' : ''}
+      <button class="btn btn-primary" data-act="${last ? 'guide-close' : 'guide-next'}">${last ? '🚀 เริ่มใช้งานเลย' : 'ถัดไป'}</button>
+    </div>`);
+  guideOpen = true;
+}
+function openGuide(step = 0) { guideStep = step; markOnboarded(); renderGuide(); }
 
 /* ---------- AI status ---------- */
 function setStatus(kind, html) {
@@ -726,7 +848,12 @@ document.addEventListener('click', async ev => {
     case 'pick-gallery': closeSheet(); $('#fileGallery').click(); break;
     case 'manual': closeSheet(); openEntry({ id: null, ts: null, date: todayKey(), meal: guessMeal(), img: '', full: '', fields: {} }); break;
     case 'retry': runAnalysis(); break;
-    case 'goto-settings': closeSheet(); setView('settings'); break;
+    case 'goto-settings': case 'guide-settings': closeSheet(); setView('settings'); break;
+    case 'guide': openGuide(0); break;
+    case 'guide-next': if (guideStep < GUIDE.length - 1) { guideStep++; renderGuide(); } break;
+    case 'guide-prev': if (guideStep > 0) { guideStep--; renderGuide(); } break;
+    case 'guide-close': closeSheet(); break;
+    case 'install': doInstall(); break;
     case 'edit': {
       const e = entries.find(x => x.id === el.dataset.id); if (!e) break;
       openEntry({ id: e.id, ts: e.ts, date: e.date, time: e.time, meal: e.meal, img: e.img, full: '',
@@ -796,6 +923,20 @@ document.addEventListener('visibilitychange', () => {
 });
 
 render();
+
+/* PWA: service worker (ทำงานเฉพาะเมื่อเปิดผ่าน http/https) */
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+
+/* เปิดจาก shortcut "ถ่ายรูปอาหาร" หรือแสดงวิธีใช้งานครั้งแรก */
+const startParams = new URLSearchParams(location.search);
+if (startParams.get('action') === 'add') {
+  openAddSheet();
+  try { history.replaceState(null, '', location.pathname); } catch {}
+} else if (!isOnboarded()) {
+  openGuide(0);
+}
 })();
 </script>
 </body>

@@ -1,0 +1,28 @@
+{
+  "id": "./",
+  "name": "YumLog - บันทึกแคลอรี่อาหาร",
+  "short_name": "YumLog",
+  "description": "ถ่ายรูปอาหาร ให้ AI ช่วยนับแคลอรี่ แล้วดูสรุปของวันได้ทันที",
+  "lang": "th",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff6fb",
+  "theme_color": "#7c4dff",
+  "categories": ["health", "food", "lifestyle"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "ถ่ายรูปอาหาร",
+      "short_name": "เพิ่มมื้อ",
+      "url": "./?action=add",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}
